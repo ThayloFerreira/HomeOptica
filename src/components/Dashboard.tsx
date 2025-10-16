@@ -14,40 +14,28 @@ export function Dashboard() {
     );
   }
 
-  // Filtra as vendas para não incluir as canceladas e pega as 5 mais recentes
   const recentSalesLimited = recentSales
     .filter(sale => sale.status !== 'cancelled')
     .slice(0, 5);
 
-  // Função para traduzir o status
   const translateStatus = (status: string) => {
-    switch (status) {
-      case 'paid':
-        return 'Pago';
-      case 'pending':
-        return 'Pendente';
-      case 'partial':
-        return 'Parcial';
-      case 'cancelled':
-        return 'Cancelado';
-      default:
-        return status;
-    }
+    const statuses: { [key: string]: string } = {
+      paid: 'Pago',
+      pending: 'Pendente',
+      partial: 'Parcial',
+      cancelled: 'Cancelado',
+    };
+    return statuses[status] || status;
   };
 
   const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'paid':
-        return 'bg-green-100 text-green-800';
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'partial':
-        return 'bg-blue-100 text-blue-800';
-      case 'cancelled':
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
+    const colors: { [key: string]: string } = {
+      paid: 'bg-green-100 text-green-800',
+      pending: 'bg-yellow-100 text-yellow-800',
+      partial: 'bg-blue-100 text-blue-800',
+      cancelled: 'bg-red-100 text-red-800',
+    };
+    return colors[status] || 'bg-gray-100 text-gray-800';
   };
 
   return (
@@ -57,67 +45,28 @@ export function Dashboard() {
         <p className="text-gray-600">Visão geral do seu negócio</p>
       </div>
 
-      {/* Cards de estatísticas */}
+      {/* Stat Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white p-6 rounded-lg shadow-sm border">
-          <div className="flex items-center">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-              </svg>
-            </div>
-            <div className="ml-4">
+          {/* Total de Clientes */}
+          <div className="bg-white p-6 rounded-lg shadow-sm border">
               <p className="text-sm font-medium text-gray-600">Total de Clientes</p>
               <p className="text-2xl font-bold text-gray-900">{clients.length}</p>
-            </div>
           </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow-sm border">
-          <div className="flex items-center">
-            <div className="p-2 bg-green-100 rounded-lg">
-              <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-              </svg>
-            </div>
-            <div className="ml-4">
+          {/* Total de Vendas */}
+          <div className="bg-white p-6 rounded-lg shadow-sm border">
               <p className="text-sm font-medium text-gray-600">Total de Vendas</p>
               <p className="text-2xl font-bold text-gray-900">{salesStats.totalCount}</p>
-            </div>
           </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow-sm border">
-          <div className="flex items-center">
-            <div className="p-2 bg-yellow-100 rounded-lg">
-              <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-              </svg>
-            </div>
-            <div className="ml-4">
+          {/* Faturamento Total */}
+          <div className="bg-white p-6 rounded-lg shadow-sm border">
               <p className="text-sm font-medium text-gray-600">Faturamento Total</p>
-              <p className="text-2xl font-bold text-gray-900">
-                R$ {salesStats.totalSales.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-              </p>
-            </div>
+              <p className="text-2xl font-bold text-gray-900">R$ {salesStats.totalSales.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
           </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow-sm border">
-          <div className="flex items-center">
-            <div className="p-2 bg-purple-100 rounded-lg">
-              <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Vendas Pagas</p>
-              <p className="text-2xl font-bold text-gray-900">
-                R$ {salesStats.totalPaid.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-              </p>
-            </div>
+          {/* Total Pendente */}
+          <div className="bg-white p-6 rounded-lg shadow-sm border">
+              <p className="text-sm font-medium text-gray-600">Total Pendente</p>
+              <p className="text-2xl font-bold text-red-600">R$ {salesStats.totalPending.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
           </div>
-        </div>
       </div>
 
       {/* Vendas recentes */}
@@ -133,7 +82,7 @@ export function Dashboard() {
               {recentSalesLimited.map((sale) => (
                 <div key={sale._id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                   <div>
-                    <p className="font-medium text-gray-900">{sale.clientName}</p>
+                    <p className="font-semibold text-gray-900">O.S. #{sale.serviceOrderNumber} - {sale.clientName}</p>
                     <p className="text-sm text-gray-600">
                       {new Date(sale._creationTime).toLocaleDateString('pt-BR')}
                     </p>

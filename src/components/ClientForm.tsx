@@ -42,7 +42,7 @@ export function ClientForm({ clientId, onClose }: ClientFormProps) {
         notes: client.notes || "",
       });
     } else {
-      setFormData(initialFormData);
+        setFormData(initialFormData);
     }
   }, [client]);
 
@@ -132,10 +132,30 @@ export function ClientForm({ clientId, onClose }: ClientFormProps) {
           </div>
         </div>
 
-        {/* Prescription Section (already correct) */}
         <div>
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Prescrição Oftálmica</h3>
-          {/* ... prescription fields ... */}
+          <div className="mb-6 p-4 border rounded-lg">
+            <h4 className="text-md font-medium text-gray-800 mb-3">Olho Direito (OD)</h4>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              <input type="text" placeholder="Esférico" value={formData.rightEye.spherical} onChange={(e) => handleEyeChange('rightEye', 'spherical', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg" />
+              <input type="text" placeholder="Cilíndrico" value={formData.rightEye.cylindrical} onChange={(e) => handleEyeChange('rightEye', 'cylindrical', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg" />
+              <input type="text" placeholder="Eixo" value={formData.rightEye.axis} onChange={(e) => handleEyeChange('rightEye', 'axis', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg" />
+              <input type="text" placeholder="Adição" value={formData.rightEye.addition} onChange={(e) => handleEyeChange('rightEye', 'addition', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg" />
+              <input type="text" placeholder="DNP" value={formData.rightEye.dnp} onChange={(e) => handleEyeChange('rightEye', 'dnp', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg" />
+              <input type="text" placeholder="C.O." value={formData.rightEye.co} onChange={(e) => handleEyeChange('rightEye', 'co', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg" />
+            </div>
+          </div>
+          <div className="mb-6 p-4 border rounded-lg">
+            <h4 className="text-md font-medium text-gray-800 mb-3">Olho Esquerdo (OE)</h4>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              <input type="text" placeholder="Esférico" value={formData.leftEye.spherical} onChange={(e) => handleEyeChange('leftEye', 'spherical', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg" />
+              <input type="text" placeholder="Cilíndrico" value={formData.leftEye.cylindrical} onChange={(e) => handleEyeChange('leftEye', 'cylindrical', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg" />
+              <input type="text" placeholder="Eixo" value={formData.leftEye.axis} onChange={(e) => handleEyeChange('leftEye', 'axis', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg" />
+              <input type="text" placeholder="Adição" value={formData.leftEye.addition} onChange={(e) => handleEyeChange('leftEye', 'addition', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg" />
+              <input type="text" placeholder="DNP" value={formData.leftEye.dnp} onChange={(e) => handleEyeChange('leftEye', 'dnp', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg" />
+              <input type="text" placeholder="C.O." value={formData.leftEye.co} onChange={(e) => handleEyeChange('leftEye', 'co', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg" />
+            </div>
+          </div>
         </div>
 
         <div className="flex gap-4 pt-4 sticky bottom-0 bg-white py-4 z-10 border-t">

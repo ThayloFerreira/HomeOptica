@@ -1,7 +1,7 @@
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
 
-// ... (other functions like list, search, get, etc. remain the same)
+// ... other functions ...
 
 export const getTotalSales = query({
   args: {},
@@ -27,4 +27,4 @@ export const getTotalSales = query({
   },
 });
 
-// ... (other functions like getSaleForReceipt, create, deleteSale etc. remain the same)
+// ... other functions like getSaleForReceipt, create, deleteSale etc. remain the same
