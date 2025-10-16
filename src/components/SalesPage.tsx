@@ -7,7 +7,7 @@ import { PaymentsList } from "./PaymentsList";
 import { toast } from "sonner";
 import type { Doc, Id } from "../../convex/_generated/dataModel";
 
-// Arquivo restaurado com a função de impressão COMPLETA.
+// Arquivo com a função de impressão de recibo atualizada.
 
 export function SalesPage() {
   const allSales = useQuery(api.sales.list);
@@ -87,19 +87,25 @@ export function SalesPage() {
         return parts.length > 0 ? `${label}: ${parts.join(', ')}` : "";
       };
 
+    const logoUrl = `${window.location.origin}/logo.png`;
+
     const receiptContent = `
     <div style="font-family: Arial, sans-serif; max-width: 400px; margin: 0 auto; padding: 20px; font-size: 12px;">
-      <div style="text-align: center; margin-bottom: 20px;">
-        <h2 style="margin: 0; font-size: 18px;">${profile?.fantasyName || 'Sua Ótica'}</h2>
-        <p style="margin: 2px 0; font-size: 12px;">${profile?.cnpj ? `CNPJ: ${profile.cnpj}` : ''}</p>
+      <div style="text-align: center; margin-bottom: 10px;">
+        <img src="${logoUrl}" alt="Logo" style="width: 180px; margin-bottom: 5px;"/>
+        <h2 style="margin: 0; font-size: 18px;">Home Óptica</h2>
+        <p style="margin: 2px 0; font-size: 11px; font-style: italic;">A lente certa muda tudo</p>
+        <p style="margin: 5px 0; font-size: 12px;">${profile?.cnpj ? `CNPJ: ${profile.cnpj}` : ''}</p>
         <p style="margin: 2px 0; font-size: 12px;">${profile?.contactPhone ? `Tel: ${profile.contactPhone}` : ''}</p>
-        <hr style="margin: 10px 0; border-top: 1px dashed #000;">
-        <h3 style="margin: 5px 0;">ORDEM DE SERVIÇO #${sale.serviceOrderNumber}</h3>
       </div>
+      <hr style="margin: 10px 0; border-top: 1px dashed #000;">
+      <h3 style="text-align: center; margin: 10px 0;">ORDEM DE SERVIÇO #${sale.serviceOrderNumber}</h3>
+      <hr style="margin: 10px 0; border-top: 1px dashed #000;">
       <div style="margin-bottom: 15px;"><strong>Cliente:</strong> ${sale.clientName}<br/><strong>Data:</strong> ${new Date(sale._creationTime).toLocaleDateString('pt-BR')}</div>
       <div style="margin-bottom: 15px; background-color: #f5f5f5; padding: 8px; border-radius: 4px;">
         <strong style="font-size: 11px;">PRESCRIÇÃO:</strong><br/>
-        <span style="font-size: 11px;">${formatEye(client.rightEye, "OD")} | ${formatEye(client.leftEye, "OE")}</span>
+        <span style="font-size: 11px;">${formatEye(client.rightEye, "OD")}</span><br/>
+        <span style="font-size: 11px;">${formatEye(client.leftEye, "OE")}</span>
       </div>
       <hr style="margin: 15px 0; border-top: 1px dashed #000;">
       <div style="margin-bottom: 15px;">
@@ -113,6 +119,11 @@ export function SalesPage() {
         <strong>TOTAL:</strong> R$ ${sale.total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}<br/>
         <strong style="color: green;">Valor Pago:</strong> R$ ${sale.paidAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}<br/>
         ${sale.pendingAmount > 0 ? `<strong style="color: red;">Valor Pendente:</strong> R$ ${sale.pendingAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : ''}
+      </div>
+      <hr style="margin: 15px 0; border-top: 1px dashed #000;">
+      <div style="font-size: 10px; text-align: center; font-style: italic;">
+          <p>Prazo de adaptação com as novas lentes é de aproximadamente 15 dias.</p>
+          <p>Garantia de 90 dias para defeitos de fabricação, conforme Código de Defesa do Consumidor.</p>
       </div>
     </div>`;
 
