@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { toast } from "sonner";
 import type { Id } from "../../convex/_generated/dataModel";
 
-// Arquivo restaurado para a versão COMPLETA e funcional.
+// Arquivo corrigido para adicionar a importação do useMemo.
 
 interface SaleFormProps {
   onClose: () => void;
@@ -59,7 +59,7 @@ export function SaleForm({ onClose }: SaleFormProps) {
     if (field === 'description') {
       item.description = String(value);
     } else {
-      item[field] = value; // Keep as string for empty input, will be converted to number on submission
+      item[field] = value;
     }
 
     const quantity = Number(item.quantity);
