@@ -17,12 +17,17 @@ export const search = query({
       return ctx.db.query("sales").order("desc").collect();
     }
     const searchNumber = parseInt(args.searchText);
-    // This is not a full-text search, but a prefix search on two fields.
-    // For full-text search, see https://docs.convex.dev/text-search
     const results = await ctx.db.query("sales").collect();
     return results.filter(sale => {
-      return sale.clientName.toLowerCase().includes(args.searchText.toLowerCase()) || (searchNumber && sale.serviceOrderNumber === searchNumber);
+      return sale.clientName.toLowerCase().includes(args.searchText.toLowerCase()) || (!isNaN(searchNumber) && sale.serviceOrderNumber === searchNumber);
     });
+  },
+});
+
+export const get = query({
+  args: { id: v.id("sales") },
+  handler: async (ctx, args) => {
+    return await ctx.db.get(args.id);
   },
 });
 
@@ -30,10 +35,7 @@ export const getNextServiceOrderNumber = query({
   args: {},
   handler: async (ctx) => {
     const lastSale = await ctx.db.query("sales").withIndex("by_serviceOrder").order("desc").first();
-    if (lastSale) {
-      return lastSale.serviceOrderNumber + 1;
-    }
-    return 701; // Starting number
+    return lastSale ? lastSale.serviceOrderNumber + 1 : 701;
   },
 });
 
@@ -42,14 +44,7 @@ export const create = mutation({
     serviceOrderNumber: v.number(),
     clientId: v.id("clients"),
     clientName: v.string(),
-    items: v.array(
-      v.object({
-        description: v.string(),
-        quantity: v.number(),
-        unitPrice: v.number(),
-        total: v.number(),
-      })
-    ),
+    items: v.array(v.object({ description: v.string(), quantity: v.number(), unitPrice: v.number(), total: v.number() })),
     subtotal: v.number(),
     discount: v.optional(v.number()),
     total: v.number(),
@@ -77,4 +72,34 @@ export const deleteSale = mutation({
   },
 });
 
-// ... other functions are omitted for brevity
+export const update = mutation({
+  args: {
+    id: v.id("sales"),
+    status: v.optional(v.string()),
+    // Add other fields you might want to update individually
+  },
+  handler: async (ctx, args) => {
+    const { id, ...rest } = args;
+    await ctx.db.patch(id, rest);
+  },
+});
+
+export const getSaleForReceipt = query({
+  args: { saleId: v.id("sales") },
+  handler: async (ctx, args) => {
+    const sale = await ctx.db.get(args.saleId);
+    if (!sale) {
+      throw new Error("Venda não encontrada");
+    }
+    const client = await ctx.db.get(sale.clientId);
+    if (!client) {
+      throw new Error("Cliente não encontrado");
+    }
+    const profile = await ctx.db.query("userProfiles").first();
+    return {
+      sale,
+      client,
+      profile,
+    };
+  },
+});
