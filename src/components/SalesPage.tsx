@@ -7,7 +7,7 @@ import { PaymentsList } from "./PaymentsList";
 import { toast } from "sonner";
 import type { Doc, Id } from "../../convex/_generated/dataModel";
 
-// Arquivo restaurado para a versão COMPLETA e funcional final.
+// Arquivo restaurado com a função de impressão COMPLETA.
 
 export function SalesPage() {
   const allSales = useQuery(api.sales.list);
@@ -75,10 +75,50 @@ export function SalesPage() {
       toast.error("Dados do cliente não carregados para impressão.");
       return;
     }
-    const receiptContent = `<html>... Conteúdo do Recibo ...</html>`;
+
+    const formatEye = (eye: any, label: string) => {
+        const parts = [];
+        if (eye?.spherical) parts.push(`ESF: ${eye.spherical}`);
+        if (eye?.cylindrical) parts.push(`CIL: ${eye.cylindrical}`);
+        if (eye?.axis) parts.push(`EIXO: ${eye.axis}`);
+        if (eye?.addition) parts.push(`ADD: ${eye.addition}`);
+        if (eye?.dnp) parts.push(`DNP: ${eye.dnp}`);
+        if (eye?.co) parts.push(`C.O.: ${eye.co}`);
+        return parts.length > 0 ? `${label}: ${parts.join(', ')}` : "";
+      };
+
+    const receiptContent = `
+    <div style="font-family: Arial, sans-serif; max-width: 400px; margin: 0 auto; padding: 20px; font-size: 12px;">
+      <div style="text-align: center; margin-bottom: 20px;">
+        <h2 style="margin: 0; font-size: 18px;">${profile?.fantasyName || 'Sua Ótica'}</h2>
+        <p style="margin: 2px 0; font-size: 12px;">${profile?.cnpj ? `CNPJ: ${profile.cnpj}` : ''}</p>
+        <p style="margin: 2px 0; font-size: 12px;">${profile?.contactPhone ? `Tel: ${profile.contactPhone}` : ''}</p>
+        <hr style="margin: 10px 0; border-top: 1px dashed #000;">
+        <h3 style="margin: 5px 0;">ORDEM DE SERVIÇO #${sale.serviceOrderNumber}</h3>
+      </div>
+      <div style="margin-bottom: 15px;"><strong>Cliente:</strong> ${sale.clientName}<br/><strong>Data:</strong> ${new Date(sale._creationTime).toLocaleDateString('pt-BR')}</div>
+      <div style="margin-bottom: 15px; background-color: #f5f5f5; padding: 8px; border-radius: 4px;">
+        <strong style="font-size: 11px;">PRESCRIÇÃO:</strong><br/>
+        <span style="font-size: 11px;">${formatEye(client.rightEye, "OD")} | ${formatEye(client.leftEye, "OE")}</span>
+      </div>
+      <hr style="margin: 15px 0; border-top: 1px dashed #000;">
+      <div style="margin-bottom: 15px;">
+        <strong>ITENS:</strong><br/>
+        ${sale.items.map((item: any) => `<span>- ${item.description} (Qtd: ${item.quantity}) - R$ ${item.total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>`).join('<br/>')}
+      </div>
+      <hr style="margin: 15px 0; border-top: 1px dashed #000;">
+      <div style="text-align: right; margin-bottom: 15px;">
+        <strong>Subtotal:</strong> R$ ${sale.subtotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}<br/>
+        ${sale.discount ? `<strong>Desconto:</strong> R$ ${sale.discount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}<br/>` : ''}
+        <strong>TOTAL:</strong> R$ ${sale.total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}<br/>
+        <strong style="color: green;">Valor Pago:</strong> R$ ${sale.paidAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}<br/>
+        ${sale.pendingAmount > 0 ? `<strong style="color: red;">Valor Pendente:</strong> R$ ${sale.pendingAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : ''}
+      </div>
+    </div>`;
+
     const printWindow = window.open("", "_blank");
     if (printWindow) {
-      printWindow.document.write(receiptContent);
+      printWindow.document.write(`<html><head><title>Recibo O.S. #${sale.serviceOrderNumber}</title></head><body>${receiptContent}</body></html>`);
       printWindow.document.close();
       printWindow.print();
     }
