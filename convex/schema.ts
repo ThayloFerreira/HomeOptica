@@ -39,6 +39,7 @@ const applicationTables = {
     .index("by_phone", ["phone"]),
 
   sales: defineTable({
+    serviceOrderNumber: v.number(), // Ordem de Serviço
     clientId: v.id("clients"),
     clientName: v.string(),
     items: v.array(v.object({
@@ -61,6 +62,7 @@ const applicationTables = {
     notes: v.optional(v.string()),
     userId: v.optional(v.id("users")), // Made optional
   })
+    .index("by_serviceOrder", ["serviceOrderNumber"])
     .index("by_user", ["userId"])
     .index("by_client", ["clientId"])
     .index("by_status", ["status"]),

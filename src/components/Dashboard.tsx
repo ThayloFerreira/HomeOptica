@@ -14,7 +14,41 @@ export function Dashboard() {
     );
   }
 
-  const recentSalesLimited = recentSales.slice(0, 5);
+  // Filtra as vendas para não incluir as canceladas e pega as 5 mais recentes
+  const recentSalesLimited = recentSales
+    .filter(sale => sale.status !== 'cancelled')
+    .slice(0, 5);
+
+  // Função para traduzir o status
+  const translateStatus = (status: string) => {
+    switch (status) {
+      case 'paid':
+        return 'Pago';
+      case 'pending':
+        return 'Pendente';
+      case 'partial':
+        return 'Parcial';
+      case 'cancelled':
+        return 'Cancelado';
+      default:
+        return status;
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'paid':
+        return 'bg-green-100 text-green-800';
+      case 'pending':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'partial':
+        return 'bg-blue-100 text-blue-800';
+      case 'cancelled':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -108,14 +142,8 @@ export function Dashboard() {
                     <p className="font-semibold text-gray-900">
                       R$ {sale.total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                     </p>
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                      sale.status === 'paid' 
-                        ? 'bg-green-100 text-green-800'
-                        : sale.status === 'pending'
-                        ? 'bg-yellow-100 text-yellow-800'
-                        : 'bg-red-100 text-red-800'
-                    }`}>
-                      {sale.status === 'paid' ? 'Pago' : sale.status === 'pending' ? 'Pendente' : 'Cancelado'}
+                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(sale.status)}`}>
+                      {translateStatus(sale.status)}
                     </span>
                   </div>
                 </div>

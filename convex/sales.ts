@@ -17,8 +17,20 @@ export const get = query({
   },
 });
 
+export const getNextServiceOrderNumber = query({
+  args: {},
+  handler: async (ctx) => {
+    const lastSale = await ctx.db.query("sales").withIndex("by_serviceOrder").order("desc").first();
+    if (lastSale) {
+      return lastSale.serviceOrderNumber + 1;
+    }
+    return 701; // Starting number
+  },
+});
+
 export const create = mutation({
   args: {
+    serviceOrderNumber: v.number(),
     clientId: v.id("clients"),
     clientName: v.string(),
     items: v.array(
@@ -47,6 +59,19 @@ export const create = mutation({
   },
 });
 
+export const deleteSale = mutation({
+  args: { id: v.id("sales") },
+  handler: async (ctx, args) => {
+    // Before deleting the sale, delete all associated payments
+    const payments = await ctx.db.query("payments").withIndex("by_sale", q => q.eq("saleId", args.id)).collect();
+    for (const payment of payments) {
+      await ctx.db.delete(payment._id);
+    }
+    // Now delete the sale itself
+    return await ctx.db.delete(args.id);
+  },
+});
+
 export const update = mutation({
   args: {
     id: v.id("sales"),
@@ -55,6 +80,10 @@ export const update = mutation({
     pendingAmount: v.optional(v.number()),
     deliveryDate: v.optional(v.string()),
     notes: v.optional(v.string()),
+    // Allow updating service order number and other fields if needed in the future
+    serviceOrderNumber: v.optional(v.number()), 
+    clientName: v.optional(v.string()),
+    total: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     const { id, ...updateData } = args;
