@@ -7,7 +7,7 @@ import { PaymentsList } from "./PaymentsList";
 import { toast } from "sonner";
 import type { Doc, Id } from "../../convex/_generated/dataModel";
 
-// Arquivo com a função de impressão de recibo atualizada.
+// Arquivo final com o layout do recibo ajustado.
 
 export function SalesPage() {
   const allSales = useQuery(api.sales.list);
@@ -93,7 +93,6 @@ export function SalesPage() {
     <div style="font-family: Arial, sans-serif; max-width: 400px; margin: 0 auto; padding: 20px; font-size: 12px;">
       <div style="text-align: center; margin-bottom: 10px;">
         <img src="${logoUrl}" alt="Logo" style="width: 180px; margin-bottom: 5px;"/>
-        <h2 style="margin: 0; font-size: 18px;">Home Óptica</h2>
         <p style="margin: 2px 0; font-size: 11px; font-style: italic;">A lente certa muda tudo</p>
         <p style="margin: 5px 0; font-size: 12px;">${profile?.cnpj ? `CNPJ: ${profile.cnpj}` : ''}</p>
         <p style="margin: 2px 0; font-size: 12px;">${profile?.contactPhone ? `Tel: ${profile.contactPhone}` : ''}</p>
@@ -123,7 +122,7 @@ export function SalesPage() {
       <hr style="margin: 15px 0; border-top: 1px dashed #000;">
       <div style="font-size: 10px; text-align: center; font-style: italic;">
           <p>Prazo de adaptação com as novas lentes é de aproximadamente 15 dias.</p>
-          <p>Garantia de 90 dias para defeitos de fabricação, conforme Código de Defesa do Consumidor.</p>
+          <p>Este produto possui garantia legal contra defeitos de fabricação pelo período de 90 (noventa) dias corridos, contados a partir da data de recebimento do produto pelo consumidor, conforme o Código de Defesa do Consumidor (Lei Federal nº 8.078/90).</p>
       </div>
     </div>`;
 
