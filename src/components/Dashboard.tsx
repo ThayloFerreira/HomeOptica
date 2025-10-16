@@ -1,14 +1,17 @@
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 
+// Arquivo restaurado para a versão completa e funcional para corrigir crash.
+
 export function Dashboard() {
   const salesStats = useQuery(api.sales.getTotalSales);
   const clients = useQuery(api.clients.list);
   const recentSales = useQuery(api.sales.list);
 
+  // Guarda de segurança para evitar crash enquanto os dados carregam
   if (salesStats === undefined || clients === undefined || recentSales === undefined) {
     return (
-      <div className="flex justify-center items-center min-h-[200px]">
+      <div className="flex justify-center items-center min-h-[400px]">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
       </div>
     );
@@ -16,15 +19,11 @@ export function Dashboard() {
 
   const recentSalesLimited = recentSales
     .filter(sale => sale.status !== 'cancelled')
+    .sort((a, b) => b._creationTime - a._creationTime)
     .slice(0, 5);
 
   const translateStatus = (status: string) => {
-    const statuses: { [key: string]: string } = {
-      paid: 'Pago',
-      pending: 'Pendente',
-      partial: 'Parcial',
-      cancelled: 'Cancelado',
-    };
+    const statuses: { [key: string]: string } = { paid: 'Pago', pending: 'Pendente', partial: 'Parcial', cancelled: 'Cancelado' };
     return statuses[status] || status;
   };
 
@@ -45,31 +44,25 @@ export function Dashboard() {
         <p className="text-gray-600">Visão geral do seu negócio</p>
       </div>
 
-      {/* Stat Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {/* Total de Clientes */}
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
-              <p className="text-sm font-medium text-gray-600">Total de Clientes</p>
-              <p className="text-2xl font-bold text-gray-900">{clients.length}</p>
-          </div>
-          {/* Total de Vendas */}
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
-              <p className="text-sm font-medium text-gray-600">Total de Vendas</p>
-              <p className="text-2xl font-bold text-gray-900">{salesStats.totalCount}</p>
-          </div>
-          {/* Faturamento Total */}
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
-              <p className="text-sm font-medium text-gray-600">Faturamento Total</p>
-              <p className="text-2xl font-bold text-gray-900">R$ {salesStats.totalSales.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
-          </div>
-          {/* Total Pendente */}
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
-              <p className="text-sm font-medium text-gray-600">Total Pendente</p>
-              <p className="text-2xl font-bold text-red-600">R$ {salesStats.totalPending.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
-          </div>
+        <div className="bg-white p-6 rounded-lg shadow-sm border">
+            <p className="text-sm font-medium text-gray-600">Total de Clientes</p>
+            <p className="text-2xl font-bold text-gray-900">{clients.length}</p>
+        </div>
+        <div className="bg-white p-6 rounded-lg shadow-sm border">
+            <p className="text-sm font-medium text-gray-600">Total de Vendas</p>
+            <p className="text-2xl font-bold text-gray-900">{salesStats.totalCount}</p>
+        </div>
+        <div className="bg-white p-6 rounded-lg shadow-sm border">
+            <p className="text-sm font-medium text-gray-600">Faturamento Total</p>
+            <p className="text-2xl font-bold text-gray-900">R$ {salesStats.totalSales.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+        </div>
+        <div className="bg-white p-6 rounded-lg shadow-sm border">
+            <p className="text-sm font-medium text-gray-600">Total Pendente</p>
+            <p className="text-2xl font-bold text-red-600">R$ {salesStats.totalPending.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+        </div>
       </div>
 
-      {/* Vendas recentes */}
       <div className="bg-white rounded-lg shadow-sm border">
         <div className="px-6 py-4 border-b">
           <h2 className="text-lg font-semibold text-gray-900">Vendas Recentes</h2>
@@ -83,17 +76,11 @@ export function Dashboard() {
                 <div key={sale._id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                   <div>
                     <p className="font-semibold text-gray-900">O.S. #{sale.serviceOrderNumber} - {sale.clientName}</p>
-                    <p className="text-sm text-gray-600">
-                      {new Date(sale._creationTime).toLocaleDateString('pt-BR')}
-                    </p>
+                    <p className="text-sm text-gray-600">{new Date(sale._creationTime).toLocaleDateString('pt-BR')}</p>
                   </div>
                   <div className="text-right">
-                    <p className="font-semibold text-gray-900">
-                      R$ {sale.total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                    </p>
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(sale.status)}`}>
-                      {translateStatus(sale.status)}
-                    </span>
+                    <p className="font-semibold text-gray-900">R$ {sale.total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(sale.status)}`}>{translateStatus(sale.status)}</span>
                   </div>
                 </div>
               ))}
