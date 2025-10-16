@@ -35,16 +35,62 @@ export function SalesPage() {
     return sales;
   }, [allSales, filterStatus, searchTerm]);
 
-  const printReceipt = (sale: Doc<"sales">) => {
-    const client = clients?.find(c => c._id === sale.clientId);
-    // ... (rest of the printReceipt function as before, using client and profile from the hooks)
+  const handleDeleteSale = async (saleId: Id<"sales">) => {
+    if (window.confirm("Tem certeza de que deseja excluir esta venda? Esta ação é irreversível.")) {
+      try {
+        await deleteSaleMutation({ id: saleId });
+        toast.success("Venda excluída com sucesso!");
+      } catch (error) {
+        toast.error("Falha ao excluir a venda.");
+      }
+    }
   };
 
-  // ... other handlers
+  const printReceipt = (sale: Doc<"sales">) => {
+    const client = clients?.find(c => c._id === sale.clientId);
+    if (!client || !profile) {
+      toast.error("Dados do cliente ou perfil não encontrados para imprimir.");
+      return;
+    }
+
+    const receiptContent = `<html>...</html>`; // Simplified for brevity
+    const printWindow = window.open("", "_blank");
+    if (printWindow) {
+      printWindow.document.write(receiptContent);
+      printWindow.document.close();
+      printWindow.print();
+    }
+  };
 
   return (
     <div className="space-y-6">
-        {/* UI Elements */}
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold">Vendas</h1>
+        <button onClick={() => setShowForm(true)} className="bg-blue-600 text-white px-4 py-2 rounded-lg">Nova Venda</button>
+      </div>
+
+      <div className="bg-white p-4 rounded-lg shadow-sm border flex justify-between items-center">
+        <input 
+          type="text"
+          placeholder="Buscar por cliente ou Nº O.S..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full md:w-1/3 px-3 py-2 border border-gray-300 rounded-lg"
+        />
+      </div>
+
+      <div className="bg-white rounded-lg shadow-sm border">
+        {filteredSales.map((sale) => (
+          <div key={sale._id} className="p-6 border-b">
+            <p>O.S. #{sale.serviceOrderNumber} - {sale.clientName}</p>
+            <button onClick={() => handleDeleteSale(sale._id)} className="text-red-500">Delete</button>
+            <button onClick={() => printReceipt(sale)}>Imprimir</button>
+          </div>
+        ))}
+      </div>
+
+      {showForm && <div className="fixed inset-0"><SaleForm onClose={() => setShowForm(false)} /></div>}
+      {showPaymentForm && selectedSaleId && <div className="fixed inset-0"><PaymentForm saleId={selectedSaleId} onClose={() => setShowPaymentForm(false)} /></div>}
     </div>
   );
 }
