@@ -1,13 +1,11 @@
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
 
-// Arquivo corrigido para remover a ordenação que estava causando o crash no servidor.
+// Arquivo final corrigido com a função addPayment restaurada e com a lógica correta.
 
 export const list = query({
   args: {},
   handler: async (ctx) => {
-    // Removido .order("desc") para evitar o crash no servidor.
-    // A ordenação será feita no frontend temporariamente.
     return await ctx.db.query("sales").collect();
   },
 });
@@ -83,6 +81,43 @@ export const update = mutation({
     const { id, ...rest } = args;
     await ctx.db.patch(id, rest);
   },
+});
+
+export const addPayment = mutation({
+    args: {
+        saleId: v.id("sales"),
+        amount: v.number(),
+        paymentMethod: v.string(),
+        notes: v.optional(v.string()),
+    },
+    handler: async (ctx, args) => {
+        const sale = await ctx.db.get(args.saleId);
+        if (!sale) {
+            throw new Error("Venda não encontrada");
+        }
+
+        // Adicionar o novo pagamento à tabela de pagamentos
+        await ctx.db.insert("payments", {
+            saleId: args.saleId,
+            amount: args.amount,
+            paymentMethod: args.paymentMethod,
+            paymentDate: Date.now(),
+            notes: args.notes,
+        });
+
+        // Atualizar os valores da venda principal
+        const newPaidAmount = sale.paidAmount + args.amount;
+        const newPendingAmount = sale.total - newPaidAmount;
+        const newStatus = newPendingAmount <= 0 ? "paid" : "partial";
+
+        await ctx.db.patch(args.saleId, {
+            paidAmount: newPaidAmount,
+            pendingAmount: newPendingAmount,
+            status: newStatus,
+        });
+
+        return { success: true };
+    },
 });
 
 export const getSaleForReceipt = query({
