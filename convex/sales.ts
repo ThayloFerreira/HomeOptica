@@ -1,7 +1,9 @@
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
 
-// Arquivo final corrigido com a função addPayment restaurada e com a lógica correta.
+// Arquivo final corrigido com a função deletePayment.
+
+// ... (funções list, search, get, getNextServiceOrderNumber, create, deleteSale, update continuam as mesmas)
 
 export const list = query({
   args: {},
@@ -92,33 +94,47 @@ export const addPayment = mutation({
     },
     handler: async (ctx, args) => {
         const sale = await ctx.db.get(args.saleId);
-        if (!sale) {
-            throw new Error("Venda não encontrada");
-        }
-
-        // Adicionar o novo pagamento à tabela de pagamentos
-        await ctx.db.insert("payments", {
-            saleId: args.saleId,
-            amount: args.amount,
-            paymentMethod: args.paymentMethod,
-            paymentDate: Date.now(),
-            notes: args.notes,
-        });
-
-        // Atualizar os valores da venda principal
+        if (!sale) throw new Error("Venda não encontrada");
+        await ctx.db.insert("payments", { saleId: args.saleId, amount: args.amount, paymentMethod: args.paymentMethod, paymentDate: Date.now(), notes: args.notes });
         const newPaidAmount = sale.paidAmount + args.amount;
         const newPendingAmount = sale.total - newPaidAmount;
         const newStatus = newPendingAmount <= 0 ? "paid" : "partial";
+        await ctx.db.patch(args.saleId, { paidAmount: newPaidAmount, pendingAmount: newPendingAmount, status: newStatus });
+        return { success: true };
+    },
+});
 
-        await ctx.db.patch(args.saleId, {
+export const deletePayment = mutation({
+    args: { paymentId: v.id("payments") },
+    handler: async (ctx, args) => {
+        const payment = await ctx.db.get(args.paymentId);
+        if (!payment) {
+            throw new Error("Pagamento não encontrado");
+        }
+
+        const sale = await ctx.db.get(payment.saleId);
+        if (!sale) {
+            throw new Error("Venda associada não encontrada");
+        }
+
+        // Subtrai o valor do pagamento e recalcula o saldo da venda
+        const newPaidAmount = sale.paidAmount - payment.amount;
+        const newPendingAmount = sale.total - newPaidAmount;
+        const newStatus = newPendingAmount <= 0 ? "paid" : newPaidAmount > 0 ? "partial" : "pending";
+
+        await ctx.db.patch(sale._id, {
             paidAmount: newPaidAmount,
             pendingAmount: newPendingAmount,
             status: newStatus,
         });
 
+        // Deleta o pagamento
+        await ctx.db.delete(args.paymentId);
+
         return { success: true };
     },
 });
+
 
 export const getSaleForReceipt = query({
   args: { saleId: v.id("sales") },
