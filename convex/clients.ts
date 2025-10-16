@@ -1,7 +1,7 @@
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
 
-// NOTE: All authentication checks have been removed for single-user mode.
+// Arquivo corrigido para aceitar os novos campos DNP e C.O. na criação e atualização de clientes.
 
 export const list = query({
   args: {},
@@ -13,8 +13,7 @@ export const list = query({
 export const get = query({
   args: { id: v.id("clients") },
   handler: async (ctx, args) => {
-    const client = await ctx.db.get(args.id);
-    return client;
+    return await ctx.db.get(args.id);
   },
 });
 
@@ -31,14 +30,17 @@ export const create = mutation({
       cylindrical: v.optional(v.string()),
       axis: v.optional(v.string()),
       addition: v.optional(v.string()),
+      dnp: v.optional(v.string()),
+      co: v.optional(v.string()),
     }),
     leftEye: v.object({
       spherical: v.optional(v.string()),
       cylindrical: v.optional(v.string()),
       axis: v.optional(v.string()),
       addition: v.optional(v.string()),
+      dnp: v.optional(v.string()),
+      co: v.optional(v.string()),
     }),
-    pupillaryDistance: v.optional(v.string()),
     notes: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
@@ -60,14 +62,17 @@ export const update = mutation({
       cylindrical: v.optional(v.string()),
       axis: v.optional(v.string()),
       addition: v.optional(v.string()),
+      dnp: v.optional(v.string()),
+      co: v.optional(v.string()),
     }),
     leftEye: v.object({
       spherical: v.optional(v.string()),
       cylindrical: v.optional(v.string()),
       axis: v.optional(v.string()),
       addition: v.optional(v.string()),
+      dnp: v.optional(v.string()),
+      co: v.optional(v.string()),
     }),
-    pupillaryDistance: v.optional(v.string()),
     notes: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
