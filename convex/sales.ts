@@ -1,9 +1,7 @@
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
 
-// Arquivo final corrigido com a função deletePayment.
-
-// ... (funções list, search, get, getNextServiceOrderNumber, create, deleteSale, update continuam as mesmas)
+// Arquivo final corrigido com a função getPayments restaurada.
 
 export const list = query({
   args: {},
@@ -108,33 +106,25 @@ export const deletePayment = mutation({
     args: { paymentId: v.id("payments") },
     handler: async (ctx, args) => {
         const payment = await ctx.db.get(args.paymentId);
-        if (!payment) {
-            throw new Error("Pagamento não encontrado");
-        }
-
+        if (!payment) throw new Error("Pagamento não encontrado");
         const sale = await ctx.db.get(payment.saleId);
-        if (!sale) {
-            throw new Error("Venda associada não encontrada");
-        }
+        if (!sale) throw new Error("Venda associada não encontrada");
 
-        // Subtrai o valor do pagamento e recalcula o saldo da venda
         const newPaidAmount = sale.paidAmount - payment.amount;
         const newPendingAmount = sale.total - newPaidAmount;
         const newStatus = newPendingAmount <= 0 ? "paid" : newPaidAmount > 0 ? "partial" : "pending";
-
-        await ctx.db.patch(sale._id, {
-            paidAmount: newPaidAmount,
-            pendingAmount: newPendingAmount,
-            status: newStatus,
-        });
-
-        // Deleta o pagamento
+        await ctx.db.patch(sale._id, { paidAmount: newPaidAmount, pendingAmount: newPendingAmount, status: newStatus });
         await ctx.db.delete(args.paymentId);
-
         return { success: true };
     },
 });
 
+export const getPayments = query({
+    args: { saleId: v.id("sales") },
+    handler: async (ctx, args) => {
+        return await ctx.db.query("payments").withIndex("by_sale", (q) => q.eq("saleId", args.saleId)).order("desc").collect();
+    },
+});
 
 export const getSaleForReceipt = query({
   args: { saleId: v.id("sales") },
