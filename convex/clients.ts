@@ -1,36 +1,19 @@
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
-import { getAuthUserId } from "@convex-dev/auth/server";
+
+// NOTE: All authentication checks have been removed for single-user mode.
 
 export const list = query({
   args: {},
   handler: async (ctx) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) {
-      throw new Error("Usuário não autenticado");
-    }
-
-    return await ctx.db
-      .query("clients")
-      .withIndex("by_user", (q) => q.eq("userId", userId))
-      .order("desc")
-      .collect();
+    return await ctx.db.query("clients").order("desc").collect();
   },
 });
 
 export const get = query({
   args: { id: v.id("clients") },
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) {
-      throw new Error("Usuário não autenticado");
-    }
-
     const client = await ctx.db.get(args.id);
-    if (!client || client.userId !== userId) {
-      throw new Error("Cliente não encontrado");
-    }
-
     return client;
   },
 });
@@ -59,15 +42,7 @@ export const create = mutation({
     notes: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) {
-      throw new Error("Usuário não autenticado");
-    }
-
-    return await ctx.db.insert("clients", {
-      ...args,
-      userId,
-    });
+    return await ctx.db.insert("clients", args);
   },
 });
 
@@ -96,34 +71,14 @@ export const update = mutation({
     notes: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) {
-      throw new Error("Usuário não autenticado");
-    }
-
-    const client = await ctx.db.get(args.id);
-    if (!client || client.userId !== userId) {
-      throw new Error("Cliente não encontrado");
-    }
-
     const { id, ...updateData } = args;
-    return await ctx.db.patch(args.id, updateData);
+    return await ctx.db.patch(id, updateData);
   },
 });
 
 export const remove = mutation({
   args: { id: v.id("clients") },
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) {
-      throw new Error("Usuário não autenticado");
-    }
-
-    const client = await ctx.db.get(args.id);
-    if (!client || client.userId !== userId) {
-      throw new Error("Cliente não encontrado");
-    }
-
     return await ctx.db.delete(args.id);
   },
 });
@@ -131,20 +86,15 @@ export const remove = mutation({
 export const search = query({
   args: { query: v.string() },
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) {
-      throw new Error("Usuário não autenticado");
+    if (args.query.length === 0) {
+      return [];
     }
-
-    const clients = await ctx.db
-      .query("clients")
-      .withIndex("by_user", (q) => q.eq("userId", userId))
-      .collect();
-
-    return clients.filter(client => 
-      client.name.toLowerCase().includes(args.query.toLowerCase()) ||
-      client.phone.includes(args.query) ||
-      (client.email && client.email.toLowerCase().includes(args.query.toLowerCase()))
+    const clients = await ctx.db.query("clients").collect();
+    return clients.filter(
+      (client) =>
+        client.name.toLowerCase().includes(args.query.toLowerCase()) ||
+        client.phone.includes(args.query) ||
+        (client.email && client.email.toLowerCase().includes(args.query.toLowerCase()))
     );
   },
 });

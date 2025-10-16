@@ -1,20 +1,13 @@
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
-import { getAuthUserId } from "@convex-dev/auth/server";
+
+// NOTE: All authentication checks have been removed for single-user mode.
 
 export const get = query({
   args: {},
   handler: async (ctx) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) {
-      return null;
-    }
-
-    const profile = await ctx.db
-      .query("userProfiles")
-      .withIndex("by_user", (q) => q.eq("userId", userId))
-      .unique();
-
+    // Return the first profile found, as there's only one user now.
+    const profile = await ctx.db.query("userProfiles").first();
     return profile;
   },
 });
@@ -26,15 +19,7 @@ export const createOrUpdate = mutation({
     contactPhone: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) {
-      throw new Error("Usuário não autenticado");
-    }
-
-    const existingProfile = await ctx.db
-      .query("userProfiles")
-      .withIndex("by_user", (q) => q.eq("userId", userId))
-      .unique();
+    const existingProfile = await ctx.db.query("userProfiles").first();
 
     const profileData = {
       fantasyName: args.fantasyName?.trim() || undefined,
@@ -45,10 +30,8 @@ export const createOrUpdate = mutation({
     if (existingProfile) {
       return await ctx.db.patch(existingProfile._id, profileData);
     } else {
-      return await ctx.db.insert("userProfiles", {
-        userId,
-        ...profileData,
-      });
+      // As there's no longer a 'userId', we remove it from the insert call.
+      return await ctx.db.insert("userProfiles", profileData);
     }
   },
 });
