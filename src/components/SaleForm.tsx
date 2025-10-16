@@ -4,8 +4,6 @@ import { api } from "../../convex/_generated/api";
 import { toast } from "sonner";
 import type { Id } from "../../convex/_generated/dataModel";
 
-// Arquivo corrigido para adicionar a importação do useMemo.
-
 interface SaleFormProps {
   onClose: () => void;
 }
@@ -122,6 +120,11 @@ export function SaleForm({ onClose }: SaleFormProps) {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div><label className="block text-sm font-medium text-gray-700 mb-1">Nº O.S. *</label><input type="number" required value={serviceOrderNumber} onChange={(e) => setServiceOrderNumber(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-yellow-50" /></div>
           <div className="md:col-span-2"><label className="block text-sm font-medium text-gray-700 mb-1">Cliente *</label><select required value={selectedClientId} onChange={(e) => setSelectedClientId(e.target.value as Id<"clients"> | "")} className="w-full px-3 py-2 border border-gray-300 rounded-lg"><option value="">Selecione um cliente</option>{clients?.map((client) => (<option key={client._id} value={client._id}>{client.name} - {client.phone}</option>))}</select></div>
+        </div>
+
+        <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Data Prevista para Entrega</label>
+            <input type="date" value={deliveryDate} onChange={(e) => setDeliveryDate(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg md:w-1/3" />
         </div>
         
         <div>
