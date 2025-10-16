@@ -23,14 +23,17 @@ const applicationTables = {
       cylindrical: v.optional(v.string()),
       axis: v.optional(v.string()),
       addition: v.optional(v.string()),
+      dnp: v.optional(v.string()), // DNP olho direito
+      co: v.optional(v.string()),  // Altura (C.O.) olho direito
     }),
     leftEye: v.object({
       spherical: v.optional(v.string()),
       cylindrical: v.optional(v.string()),
       axis: v.optional(v.string()),
       addition: v.optional(v.string()),
+      dnp: v.optional(v.string()), // DNP olho esquerdo
+      co: v.optional(v.string()),  // Altura (C.O.) olho esquerdo
     }),
-    pupillaryDistance: v.optional(v.string()),
     notes: v.optional(v.string()),
     userId: v.optional(v.id("users")), // Made optional
   })
@@ -78,7 +81,6 @@ const applicationTables = {
     .index("by_sale", ["saleId"])
     .index("by_user", ["userId"]),
   
-  // Dummy users table to satisfy the v.id("users") constraint
   users: defineTable({}),
 };
 
