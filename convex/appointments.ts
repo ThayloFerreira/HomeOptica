@@ -1,40 +1,38 @@
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
 
-// Funções para gerenciar agendamentos.
+// Arquivo corrigido com a sintaxe correta para as queries de data.
 
-// Lista os agendamentos para um dia específico
 export const listByDay = query({
-  args: { date: v.number() }, // data como timestamp
+  args: { date: v.number() },
   handler: async (ctx, args) => {
-    // Calcula o início e o fim do dia
     const startDate = new Date(args.date);
     startDate.setHours(0, 0, 0, 0);
     const endDate = new Date(args.date);
     endDate.setHours(23, 59, 59, 999);
 
+    // Forma correta de fazer a query em um índice
     return await ctx.db
       .query("appointments")
-      .withIndex("by_date")
-      .filter(q => q.gte("date", startDate.getTime()) && q.lte("date", endDate.getTime()))
+      .withIndex("by_date", q => 
+        q.gte("date", startDate.getTime()).lte("date", endDate.getTime())
+      )
       .collect();
   },
 });
 
-// Cria um novo agendamento
 export const create = mutation({
   args: {
     clientId: v.id("clients"),
     clientName: v.string(),
-    date: v.number(), // data e hora como timestamp
+    date: v.number(),
     notes: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    // Verifica se o horário já está ocupado
+    // Forma correta de verificar a existência de um agendamento
     const existingAppointment = await ctx.db
       .query("appointments")
-      .withIndex("by_date")
-      .filter(q => q.eq("date", args.date))
+      .withIndex("by_date", q => q.eq("date", args.date))
       .first();
 
     if (existingAppointment) {
@@ -45,7 +43,6 @@ export const create = mutation({
   },
 });
 
-// Cancela (deleta) um agendamento
 export const cancel = mutation({
   args: { appointmentId: v.id("appointments") },
   handler: async (ctx, args) => {
