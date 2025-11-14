@@ -4,6 +4,9 @@ import { ClientsPage } from "./components/ClientsPage";
 import { SalesPage } from "./components/SalesPage";
 import { Dashboard } from "./components/Dashboard";
 import { UserProfileForm } from "./components/UserProfileForm";
+import { AgendaPage } from "./components/AgendaPage"; // Importar a nova página
+
+// Arquivo final com a adição da página de Agenda.
 
 export default function App() {
   return (
@@ -20,7 +23,7 @@ export default function App() {
 }
 
 function Content() {
-  const [currentPage, setCurrentPage] = useState<"dashboard" | "clients" | "sales" | "profile">("dashboard");
+  const [currentPage, setCurrentPage] = useState<"dashboard" | "clients" | "sales" | "profile" | "agenda">("dashboard");
   const [showProfileForm, setShowProfileForm] = useState(false);
 
   return (
@@ -28,42 +31,11 @@ function Content() {
       <div className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-4">
           <nav className="flex space-x-8">
-            <button
-              onClick={() => setCurrentPage("dashboard")}
-              className={`py-4 px-2 border-b-2 font-medium text-sm ${
-                currentPage === "dashboard"
-                  ? "border-blue-500 text-blue-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              }`}
-            >
-              Dashboard
-            </button>
-            <button
-              onClick={() => setCurrentPage("clients")}
-              className={`py-4 px-2 border-b-2 font-medium text-sm ${
-                currentPage === "clients"
-                  ? "border-blue-500 text-blue-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              }`}
-            >
-              Clientes
-            </button>
-            <button
-              onClick={() => setCurrentPage("sales")}
-              className={`py-4 px-2 border-b-2 font-medium text-sm ${
-                currentPage === "sales"
-                  ? "border-blue-500 text-blue-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              }`}
-            >
-              Vendas
-            </button>
-            <button
-              onClick={() => setShowProfileForm(true)}
-              className="py-4 px-2 border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 font-medium text-sm"
-            >
-              Perfil da Empresa
-            </button>
+            <button onClick={() => setCurrentPage("dashboard")} className={`py-4 px-2 border-b-2 font-medium text-sm ${currentPage === "dashboard" ? "border-blue-500 text-blue-600" : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"}`}>Dashboard</button>
+            <button onClick={() => setCurrentPage("clients")} className={`py-4 px-2 border-b-2 font-medium text-sm ${currentPage === "clients" ? "border-blue-500 text-blue-600" : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"}`}>Clientes</button>
+            <button onClick={() => setCurrentPage("sales")} className={`py-4 px-2 border-b-2 font-medium text-sm ${currentPage === "sales" ? "border-blue-500 text-blue-600" : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"}`}>Vendas</button>
+            <button onClick={() => setCurrentPage("agenda")} className={`py-4 px-2 border-b-2 font-medium text-sm ${currentPage === "agenda" ? "border-blue-500 text-blue-600" : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"}`}>Agenda</button>
+            <button onClick={() => setShowProfileForm(true)} className="py-4 px-2 border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 font-medium text-sm">Perfil da Empresa</button>
           </nav>
         </div>
       </div>
@@ -72,6 +44,7 @@ function Content() {
         {currentPage === "dashboard" && <Dashboard />}
         {currentPage === "clients" && <ClientsPage />}
         {currentPage === "sales" && <SalesPage />}
+        {currentPage === "agenda" && <AgendaPage />}
       </div>
 
       {showProfileForm && (

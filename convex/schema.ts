@@ -1,11 +1,11 @@
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
-// NOTE: Authentication has been removed. The authTables and all userId fields have been made optional or removed.
+// Arquivo com a adição da nova tabela 'appointments'.
 
 const applicationTables = {
   userProfiles: defineTable({
-    userId: v.optional(v.id("users")), // Made optional
+    userId: v.optional(v.id("users")), 
     fantasyName: v.optional(v.string()),
     cnpj: v.optional(v.string()),
     contactPhone: v.optional(v.string()),
@@ -23,34 +23,29 @@ const applicationTables = {
       cylindrical: v.optional(v.string()),
       axis: v.optional(v.string()),
       addition: v.optional(v.string()),
-      dnp: v.optional(v.string()), // DNP olho direito
-      co: v.optional(v.string()),  // Altura (C.O.) olho direito
+      dnp: v.optional(v.string()),
+      co: v.optional(v.string()),
     }),
     leftEye: v.object({
       spherical: v.optional(v.string()),
       cylindrical: v.optional(v.string()),
       axis: v.optional(v.string()),
       addition: v.optional(v.string()),
-      dnp: v.optional(v.string()), // DNP olho esquerdo
-      co: v.optional(v.string()),  // Altura (C.O.) olho esquerdo
+      dnp: v.optional(v.string()),
+      co: v.optional(v.string()),
     }),
     notes: v.optional(v.string()),
-    userId: v.optional(v.id("users")), // Made optional
+    userId: v.optional(v.id("users")), 
   })
     .index("by_user", ["userId"])
     .index("by_name", ["name"])
     .index("by_phone", ["phone"]),
 
   sales: defineTable({
-    serviceOrderNumber: v.number(), // Ordem de Serviço
+    serviceOrderNumber: v.number(),
     clientId: v.id("clients"),
     clientName: v.string(),
-    items: v.array(v.object({
-      description: v.string(),
-      quantity: v.number(),
-      unitPrice: v.number(),
-      total: v.number(),
-    })),
+    items: v.array(v.object({ description: v.string(), quantity: v.number(), unitPrice: v.number(), total: v.number() })),
     frameValue: v.optional(v.number()),
     lensValue: v.optional(v.number()),
     subtotal: v.number(),
@@ -63,7 +58,7 @@ const applicationTables = {
     status: v.string(),
     deliveryDate: v.optional(v.string()),
     notes: v.optional(v.string()),
-    userId: v.optional(v.id("users")), // Made optional
+    userId: v.optional(v.id("users")), 
   })
     .index("by_serviceOrder", ["serviceOrderNumber"])
     .index("by_user", ["userId"])
@@ -76,10 +71,17 @@ const applicationTables = {
     paymentMethod: v.string(),
     paymentDate: v.number(),
     notes: v.optional(v.string()),
-    userId: v.optional(v.id("users")), // Made optional
+    userId: v.optional(v.id("users")), 
   })
     .index("by_sale", ["saleId"])
     .index("by_user", ["userId"]),
+
+  appointments: defineTable({
+    clientId: v.id("clients"),
+    clientName: v.string(),
+    date: v.number(), // Armazenado como timestamp para queries de data/hora
+    notes: v.optional(v.string()),
+  }).index("by_date", ["date"]),
   
   users: defineTable({}),
 };
